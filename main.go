@@ -26,11 +26,15 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "home.html")
 }
 
+func scroll(w http.ResponseWriter, r *http.Request) {
+}
+
 func main() {
 	flag.Parse()
 	hub := newHub()
 	go hub.run()
 	http.HandleFunc("/", serveHome)
+	http.HandleFunc("/scroll", scroll)
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
@@ -42,4 +46,4 @@ func main() {
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
-} 
+}

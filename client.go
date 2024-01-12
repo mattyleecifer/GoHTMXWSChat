@@ -87,7 +87,7 @@ func (c *Client) readPump() {
 			continue
 		}
 
-		message = []byte(string(`<div id="chat_room" hx-swap-oob="beforeend"><p>`) + c.id.String() + string(": ") + string(chatMessage) + string(`</p></div><input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput">`))
+		message = []byte(string(`<div id="chat_room" hx-swap-oob="beforeend"><p>`) + c.id.String() + string(": ") + string(chatMessage) + string(`</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" hx-swap="none scroll:#chat_room:bottom">`))
 		fmt.Println(string(message))
 		c.hub.broadcast <- message
 	}
