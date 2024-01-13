@@ -45,12 +45,17 @@ body {
 </head>
 <body>
     <div hx-ext="ws" ws-connect="/ws">
-        <div id="notifications"></div>
+        
         <div id="chat_room">
+            <div id="chatloading" class="htmx-indicator"><p>Someone is typing...</p></div>
         </div>
         <form id="form" ws-send>
             <input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput">
         </form>
+        <div id="typingtrigger" hx-trigger="input from:#form throttle:5s" hx-get="/typing" hx-target="this"></div>
+     
+        <input type="hidden" id="typing" name="chatinput" value="{{typing}}">
+        
     </div>
 </body>
 </html>

@@ -87,8 +87,13 @@ func (c *Client) readPump() {
 			continue
 		}
 
-		message = []byte(string(`<div id="chat_room" hx-swap-oob="beforeend"><p>`) + c.id.String() + string(": ") + string(chatMessage) + string(`</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" hx-swap="none scroll:#chat_room:bottom">`))
-		fmt.Println(string(message))
+		if chatMessage == "{{typing}}" {
+			message = []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><div hx-trigger="load" hx-get="/sleep" hx-target="#chatloading" hx-indicator="#chatloading" hx-swap="beforebegin"></div><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div>`))
+			fmt.Println(string(message))
+		} else {
+			message = []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p>`) + c.id.String() + string(": ") + string(chatMessage) + string(`</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" hx-swap="none scroll:#chat_room:bottom"><div id="chatloading" class="htmx-indicator" hx-swap-oob="outerHTML"><p>Someone is typing...</p></div>`))
+			fmt.Println(string(message))
+		}
 		c.hub.broadcast <- message
 	}
 }
