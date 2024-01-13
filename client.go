@@ -191,7 +191,7 @@ func (c *Client) writePump() {
 				} else {
 					sender = newMessage.Screenname + `: `
 				}
-				messageText += fmt.Sprintf(`"<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>%s</strong> %s</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><div id="chatloading" class="htmx-indicator" hx-swap-oob="outerHTML\"></div>"`, sender, newMessage.Message)
+				messageText += fmt.Sprintf(`"<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>%s</strong> %s</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><div id="chatloading" class="htmx-indicator" hx-swap-oob="outerHTML"></div>"`, sender, newMessage.Message)
 			}
 
 			w.Write([]byte(messageText))

@@ -43,7 +43,7 @@ func typing(w http.ResponseWriter, r *http.Request) {
 func changescreen(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		render(w, `<form id="screenname" ws-send style="float: right; display: inline-flex;">
-	Name: <input  name="screenname" type="text" autofocus style="margin-right: 1.1em;">
+	Name: <input name="screenname" type="text" autofocus style="margin-right: 1.1em;">
 </form>`, nil)
 	}
 }
