@@ -141,8 +141,13 @@ func (c *Client) writePump() {
 			var newMessage ChatMessage
 			err = json.Unmarshal(message, &newMessage)
 			if err != nil {
-				log.Println("Error unmarshaling JSON:", err)
-				return
+				log.Println("Error unmarshaling JSON: Sending message as plain text", err)
+
+				// If it unmarshal, it will just try to write the message anyway as plain text
+
+				newMessage.Message = string(message)
+				w.Write(message)
+				continue
 			}
 
 			fmt.Println(newMessage)
@@ -207,4 +212,8 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	// new goroutines.
 	go client.writePump()
 	go client.readPump()
+
+	// login message
+	message := []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><strong>` + client.screenname + ` has joined the chat</strong></div>`))
+	client.hub.broadcast <- message
 }

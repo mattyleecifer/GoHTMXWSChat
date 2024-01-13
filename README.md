@@ -4,3 +4,8 @@ This project started [from the gorilla/websocket chat example](https://github.co
 
 Features:
 - Like any other chat app, you can send and receive messages.
+
+
+Todo:
+- Add ability to change name
+- Fix scrolling thing 
