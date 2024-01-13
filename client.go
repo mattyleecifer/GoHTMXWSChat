@@ -119,7 +119,7 @@ func (c *Client) readPump() {
 				} else {
 					c.screenname = newScreenname
 				}
-				message = []byte(`<div id="chatloading" hx-swap-oob="beforebegin"><p>` + oldScreenname + ` has changed their name to ` + newScreenname + `<p></div>`)
+				message = []byte(`<div id="chatloading" hx-swap-oob="beforebegin"><p>` + oldScreenname + ` has changed their name to ` + newScreenname + `<p></div><div id="changescreen" hx-get="/changescreen" hx-swap-oob="innerHTML"><button type="submit">Change Name</button></div>`)
 			}
 		}
 
@@ -186,7 +186,7 @@ func (c *Client) writePump() {
 				}
 			} else {
 				if newMessage.Sender == c.id.String() {
-					messageText += `<input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput">`
+					messageText += `<input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" style="width: 80%;">`
 					sender = `You: `
 				} else {
 					sender = newMessage.Screenname + `: `
@@ -238,10 +238,6 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.readPump()
 
 	// login message
-	message := []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>` + client.screenname + ` has joined the chat</strong></p></div>
-	<form id="screenname" ws-send style="float: right; display: flex">
-            Name: <input  name="screenname" type="text" value="` + client.screenname + `"><button>Change</button>
-        </form>
-	`))
+	message := []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>` + client.screenname + ` has joined the chat</strong></p></div>`))
 	client.hub.broadcast <- message
 }

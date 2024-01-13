@@ -41,6 +41,10 @@ body {
     overflow: hidden;
 }
 
+button {
+    white-space: nowrap;
+}
+
 </style>
 </head>
 <body>
@@ -54,10 +58,7 @@ body {
         <form id="form" ws-send style="float:left; width: 100%;">
             <input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" style="width: 80%;"> 
         </form>
-        <form id="screenname" ws-send style="float: right; display: inline-flex;">
-            Name: <input  name="screenname" type="text" value="Anonymous user">
-            <button>Change</button>
-        </form>
+        <div id="changescreen" hx-get="/changescreen" style="float: right;"><button type="submit">Change Name</button></div>
         </div>
     </div>
         <div id="typingtrigger" hx-trigger="input from:#form throttle:5s" hx-get="/typing" hx-target="this"></div>

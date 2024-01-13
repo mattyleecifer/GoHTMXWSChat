@@ -40,6 +40,14 @@ func typing(w http.ResponseWriter, r *http.Request) {
 	render(w, `<div hx-trigger="load" hx-include="#typing" ws-send></div>`, nil)
 }
 
+func changescreen(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		render(w, `<form id="screenname" ws-send style="float: right; display: inline-flex;">
+	Name: <input  name="screenname" type="text" autofocus>
+</form>`, nil)
+	}
+}
+
 func main() {
 	flag.Parse()
 	hub := newHub()
@@ -48,7 +56,7 @@ func main() {
 	http.HandleFunc("/scroll", scroll)
 	http.HandleFunc("/typing", typing)
 	http.HandleFunc("/sleep", sleep)
-
+	http.HandleFunc("/changescreen", changescreen)
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})

@@ -7,5 +7,4 @@ Features:
 
 
 Todo:
-- Add ability to change name
-- Fix scrolling thing 
+- Bug where username changes when new person joins
