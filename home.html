@@ -11,6 +11,7 @@ html {
 }
 
 body {
+    font-size: 16px;
     overflow: hidden;
     padding: 0;
     margin: 0;
@@ -28,10 +29,13 @@ body {
     left: 0.5em;
     right: 0.5em;
     bottom: 3em;
+    height: 80vh;
     overflow: auto;
+    display: block;
 }
 
 #forms {
+    display: block;
     padding: 0 0.5em 0 0.5em;
     margin: 0;
     position: absolute;
@@ -39,6 +43,7 @@ body {
     left: 0px;
     width: 100%;
     overflow: hidden;
+    margin-bottom: 1em;
 }
 
 button {
@@ -46,18 +51,27 @@ button {
     margin-right: 1.1em;
 }
 
+#chatinput {
+    width: 90%; 
+    margin-bottom: 0;
+}
+
+#form {
+    height: 100%;
+}
+
 </style>
 </head>
 <body>
     <div hx-ext="ws" ws-connect="/ws" style="display: block;">
         
-        <div id="chat_room" style="display: block;">
+        <div id="chat_room">
             <div id="chatloading" class="htmx-indicator"><p>Someone is typing...</p></div>
         </div>
-        <div id="forms" style="display: inline-block;">
+        <div id="forms">
         <div style="display: flex;">
         <form id="form" ws-send style="float:left; width: 100%;">
-            <input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" style="width: 90%;"> 
+            <input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput"> 
         </form>
         <div id="changescreen" hx-get="/changescreen" style="float: right;"><button type="submit">Change Name</button></div>
         </div>

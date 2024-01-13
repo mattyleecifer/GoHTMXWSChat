@@ -186,7 +186,7 @@ func (c *Client) writePump() {
 				}
 			} else {
 				if newMessage.Sender == c.id.String() {
-					messageText += `<input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" style="width: 80%;">`
+					messageText += `<input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput">`
 					sender = `You: `
 				} else {
 					sender = newMessage.Screenname + `: `
