@@ -147,6 +147,17 @@ func (c *Client) writePump() {
 
 				newMessage.Message = string(message)
 				w.Write(message)
+				// Add queued chat messages to the current websocket message.
+				n := len(c.send)
+				for i := 0; i < n; i++ {
+					w.Write(newline)
+					w.Write(<-c.send)
+				}
+
+				if err := w.Close(); err != nil {
+					return
+				}
+
 				continue
 			}
 
@@ -160,7 +171,7 @@ func (c *Client) writePump() {
 				}
 			} else {
 				if newMessage.Message == "{{typing}}" {
-					message = []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><div hx-trigger="load" hx-get="/sleep" hx-target="#chatloading" hx-indicator="#chatloading" hx-swap="beforebegin"></div><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div>`))
+					message = []byte(string(`<div id="chatloading" hx-swap-oob><p>` + newMessage.Screenname + ` is typing...</p><div hx-trigger="load" hx-get="/sleep" hx-target="#chatloading" hx-indicator="#chatloading" hx-swap="beforebegin"></div><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div>`))
 				} else {
 					message = []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>`) + newMessage.Screenname + string("</strong>: ") + string(newMessage.Message) + string(`</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" hx-swap="none scroll:#chat_room:bottom"><div id="chatloading" class="htmx-indicator" hx-swap-oob="outerHTML"><p>Someone is typing...</p></div>`))
 				}
@@ -214,6 +225,6 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.readPump()
 
 	// login message
-	message := []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><strong>` + client.screenname + ` has joined the chat</strong></div>`))
+	message := []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>` + client.screenname + ` has joined the chat</strong></p></div>`))
 	client.hub.broadcast <- message
 }
