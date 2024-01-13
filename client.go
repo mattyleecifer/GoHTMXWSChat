@@ -50,6 +50,11 @@ type Client struct {
 	send chan []byte
 }
 
+type ChatMessage struct {
+	Sender  string `json:"Sender"`
+	Message string `json:"Message"`
+}
+
 // readPump pumps messages from the websocket connection to the hub.
 //
 // The application runs readPump in a per-connection goroutine. The application
@@ -87,13 +92,17 @@ func (c *Client) readPump() {
 			continue
 		}
 
-		if chatMessage == "{{typing}}" {
-			message = []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><div hx-trigger="load" hx-get="/sleep" hx-target="#chatloading" hx-indicator="#chatloading" hx-swap="beforebegin"></div><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div>`))
-			fmt.Println(string(message))
-		} else {
-			message = []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p>`) + c.id.String() + string(": ") + string(chatMessage) + string(`</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" hx-swap="none scroll:#chat_room:bottom"><div id="chatloading" class="htmx-indicator" hx-swap-oob="outerHTML"><p>Someone is typing...</p></div>`))
-			fmt.Println(string(message))
+		newMessage := ChatMessage{
+			Sender:  c.id.String(),
+			Message: chatMessage,
 		}
+
+		message, err = json.Marshal(newMessage)
+		if err != nil {
+			log.Println("Error marshaling JSON:", err)
+			return
+		}
+
 		c.hub.broadcast <- message
 	}
 }
@@ -122,6 +131,29 @@ func (c *Client) writePump() {
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
+			}
+
+			var newMessage ChatMessage
+			err = json.Unmarshal(message, &newMessage)
+			if err != nil {
+				log.Println("Error unmarshaling JSON:", err)
+				return
+			}
+
+			fmt.Println(newMessage)
+			if newMessage.Sender == c.id.String() {
+				// if its to self
+				if newMessage.Message == "{{typing}}" {
+					message = []byte(string(``))
+				} else {
+					message = []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>You</strong>: `) + string(newMessage.Message) + string(`</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" hx-swap="none scroll:#chat_room:bottom"><div id="chatloading" class="htmx-indicator" hx-swap-oob="outerHTML"><p>Someone is typing...</p></div>`))
+				}
+			} else {
+				if newMessage.Message == "{{typing}}" {
+					message = []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><div hx-trigger="load" hx-get="/sleep" hx-target="#chatloading" hx-indicator="#chatloading" hx-swap="beforebegin"></div><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div>`))
+				} else {
+					message = []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>`) + c.id.String() + string("</strong>: ") + string(newMessage.Message) + string(`</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" hx-swap="none scroll:#chat_room:bottom"><div id="chatloading" class="htmx-indicator" hx-swap-oob="outerHTML"><p>Someone is typing...</p></div>`))
+				}
 			}
 
 			// add wrapper to send message to htmx
