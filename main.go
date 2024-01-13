@@ -40,8 +40,6 @@ func typing(w http.ResponseWriter, r *http.Request) {
 	render(w, `<div hx-trigger="load" hx-include="#typing" ws-send></div>`, nil)
 }
 
-// <div id="typingtrigger" hx-trigger="input from:#chatinput throttle:5s" hx-get="/typing" hx-target="this" hx-swap="outerHTML"><div hx-trigger="load" hx-get="/sleep" hx-target="#chatloading" hx-indicator="#chatloading" hx-swap="beforebegin"></div></div>
-
 func main() {
 	flag.Parse()
 	hub := newHub()

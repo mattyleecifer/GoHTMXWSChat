@@ -147,6 +147,7 @@ func (c *Client) writePump() {
 
 				newMessage.Message = string(message)
 				w.Write(message)
+
 				// Add queued chat messages to the current websocket message.
 				n := len(c.send)
 				for i := 0; i < n; i++ {
@@ -161,27 +162,28 @@ func (c *Client) writePump() {
 				continue
 			}
 
-			fmt.Println(newMessage)
-			if newMessage.Sender == c.id.String() {
-				// if its to self
-				if newMessage.Message == "{{typing}}" {
-					message = []byte(string(``))
+			var messageText string
+			var sender string
+			if newMessage.Message == "{{typing}}" {
+				if newMessage.Sender == c.id.String() {
+					messageText = ``
 				} else {
-					message = []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>You</strong>: `) + string(newMessage.Message) + string(`</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" hx-swap="none scroll:#chat_room:bottom"><div id="chatloading" class="htmx-indicator" hx-swap-oob="outerHTML"><p>Someone is typing...</p></div>`))
+					messageText = `<div id="chatloading" class="htmx-indicator" hx-swap-oob><p>` + newMessage.Screenname + ` is typing...</p><div hx-trigger="load" hx-get="/sleep" hx-target="#chatloading" hx-indicator="#chatloading" hx-swap="beforebegin"></div><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div>`
 				}
 			} else {
-				if newMessage.Message == "{{typing}}" {
-					message = []byte(string(`<div id="chatloading" hx-swap-oob><p>` + newMessage.Screenname + ` is typing...</p><div hx-trigger="load" hx-get="/sleep" hx-target="#chatloading" hx-indicator="#chatloading" hx-swap="beforebegin"></div><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div>`))
+				if newMessage.Sender == c.id.String() {
+					messageText += `<input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput">`
+					sender = `You: `
 				} else {
-					message = []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>`) + newMessage.Screenname + string("</strong>: ") + string(newMessage.Message) + string(`</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" hx-swap="none scroll:#chat_room:bottom"><div id="chatloading" class="htmx-indicator" hx-swap-oob="outerHTML"><p>Someone is typing...</p></div>`))
+					sender = newMessage.Screenname + `: `
 				}
+				messageText += fmt.Sprintf(`"<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>%s</strong> %s</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><div id="chatloading" class="htmx-indicator" hx-swap-oob="outerHTML\"></div>"`, sender, newMessage.Message)
 			}
 
 			// add wrapper to send message to htmx
-			message = []byte(string(message))
 
-			fmt.Println(string(message))
-			w.Write(message)
+			fmt.Println(string(messageText))
+			w.Write([]byte(messageText))
 
 			// Add queued chat messages to the current websocket message.
 			n := len(c.send)
