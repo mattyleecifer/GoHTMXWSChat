@@ -4,7 +4,10 @@ This project started [from the gorilla/websocket chat example](https://github.co
 
 Features:
 - Like any other chat app, you can send and receive messages.
+- Shows when a new user joins the chat
+- Indicator when someone in the chat is typing
+- Shows usernames in chat (shows 'You' for user)
+- Users can change usernames - they start off anonymous
 
+Just need to compile or `go run *.go` and it will work on http://127.0.0.1:8080
 
-Todo:
-- Bug where username changes when new person joins
