@@ -91,21 +91,36 @@ func (c *Client) readPump() {
 
 		// Extract the chat message
 		chatMessage, ok := msg["chatinput"].(string)
-		if !ok {
-			// Handle error
-			continue
+		if ok {
+			// do nothing if message blank
+			if len(chatMessage) == 0 {
+				continue
+			}
+
+			newMessage := ChatMessage{
+				Sender:     c.id.String(),
+				Message:    chatMessage,
+				Screenname: c.screenname,
+			}
+
+			message, err = json.Marshal(newMessage)
+			if err != nil {
+				log.Println("Error marshaling JSON:", err)
+				return
+			}
 		}
 
-		newMessage := ChatMessage{
-			Sender:     c.id.String(),
-			Message:    chatMessage,
-			Screenname: c.screenname,
-		}
-
-		message, err = json.Marshal(newMessage)
-		if err != nil {
-			log.Println("Error marshaling JSON:", err)
-			return
+		newScreenname, ok := msg["screenname"].(string)
+		if ok {
+			if newScreenname != c.screenname {
+				oldScreenname := c.screenname
+				if len(newScreenname) > 15 {
+					c.screenname = newScreenname[:15]
+				} else {
+					c.screenname = newScreenname
+				}
+				message = []byte(`<div id="chatloading" hx-swap-oob="beforebegin"><p>` + oldScreenname + ` has changed their name to ` + newScreenname + `<p></div>`)
+			}
 		}
 
 		c.hub.broadcast <- message
@@ -144,7 +159,6 @@ func (c *Client) writePump() {
 				log.Println("Error unmarshaling JSON: Sending message as plain text", err)
 
 				// If it unmarshal, it will just try to write the message anyway as plain text
-
 				newMessage.Message = string(message)
 				w.Write(message)
 
@@ -180,9 +194,6 @@ func (c *Client) writePump() {
 				messageText += fmt.Sprintf(`"<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>%s</strong> %s</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><div id="chatloading" class="htmx-indicator" hx-swap-oob="outerHTML\"></div>"`, sender, newMessage.Message)
 			}
 
-			// add wrapper to send message to htmx
-
-			fmt.Println(string(messageText))
 			w.Write([]byte(messageText))
 
 			// Add queued chat messages to the current websocket message.
@@ -227,6 +238,10 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.readPump()
 
 	// login message
-	message := []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>` + client.screenname + ` has joined the chat</strong></p></div>`))
+	message := []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>` + client.screenname + ` has joined the chat</strong></p></div>
+	<form id="screenname" ws-send style="float: right;">
+            Screenname: <input  name="screenname" type="text" value="` + client.screenname + `"><button>Change</button>
+        </form>
+	`))
 	client.hub.broadcast <- message
 }

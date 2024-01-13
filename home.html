@@ -50,7 +50,11 @@ body {
             <div id="chatloading" class="htmx-indicator"><p>Someone is typing...</p></div>
         </div>
         <form id="form" ws-send>
-            <input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput">
+            <input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput"> 
+        </form>
+        <form id="screenname" ws-send style="float: right;">
+            Screenname: <input  name="screenname" type="text" value="Anonymous user">
+            <button>Change</button>
         </form>
         <div id="typingtrigger" hx-trigger="input from:#form throttle:5s" hx-get="/typing" hx-target="this"></div>
      
