@@ -31,7 +31,7 @@ body {
     overflow: auto;
 }
 
-#form {
+#forms {
     padding: 0 0.5em 0 0.5em;
     margin: 0;
     position: absolute;
@@ -44,18 +44,22 @@ body {
 </style>
 </head>
 <body>
-    <div hx-ext="ws" ws-connect="/ws">
+    <div hx-ext="ws" ws-connect="/ws" style="display: block;">
         
-        <div id="chat_room">
+        <div id="chat_room" style="display: block;">
             <div id="chatloading" class="htmx-indicator"><p>Someone is typing...</p></div>
         </div>
-        <form id="form" ws-send>
-            <input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput"> 
+        <div id="forms" style="display: inline-block;">
+        <div style="display: flex;">
+        <form id="form" ws-send style="float:left; width: 100%;">
+            <input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" style="width: 80%;"> 
         </form>
-        <form id="screenname" ws-send style="float: right;">
-            Screenname: <input  name="screenname" type="text" value="Anonymous user">
+        <form id="screenname" ws-send style="float: right; display: inline-flex;">
+            Name: <input  name="screenname" type="text" value="Anonymous user">
             <button>Change</button>
         </form>
+        </div>
+    </div>
         <div id="typingtrigger" hx-trigger="input from:#form throttle:5s" hx-get="/typing" hx-target="this"></div>
      
         <input type="hidden" id="typing" name="chatinput" value="{{typing}}">

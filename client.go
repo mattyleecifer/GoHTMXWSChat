@@ -239,8 +239,8 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 
 	// login message
 	message := []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>` + client.screenname + ` has joined the chat</strong></p></div>
-	<form id="screenname" ws-send style="float: right;">
-            Screenname: <input  name="screenname" type="text" value="` + client.screenname + `"><button>Change</button>
+	<form id="screenname" ws-send style="float: right; display: flex">
+            Name: <input  name="screenname" type="text" value="` + client.screenname + `"><button>Change</button>
         </form>
 	`))
 	client.hub.broadcast <- message
