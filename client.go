@@ -44,8 +44,8 @@ type Client struct {
 	hub *Hub
 	id  uuid.UUID
 	// The websocket connection.
-	conn *websocket.Conn
-
+	conn       *websocket.Conn
+	screenname string
 	// Buffered channel of outbound messages.
 	send chan []byte
 }
@@ -152,7 +152,7 @@ func (c *Client) writePump() {
 				if newMessage.Message == "{{typing}}" {
 					message = []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><div hx-trigger="load" hx-get="/sleep" hx-target="#chatloading" hx-indicator="#chatloading" hx-swap="beforebegin"></div><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div>`))
 				} else {
-					message = []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>`) + c.id.String() + string("</strong>: ") + string(newMessage.Message) + string(`</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" hx-swap="none scroll:#chat_room:bottom"><div id="chatloading" class="htmx-indicator" hx-swap-oob="outerHTML"><p>Someone is typing...</p></div>`))
+					message = []byte(string(`<div id="chatloading" hx-swap-oob="beforebegin"><p><strong>`) + c.screenname + string("</strong>: ") + string(newMessage.Message) + string(`</p><div hx-get="/scroll" hx-target="#chat_room" hx-swap="beforebegin scroll:#chat_room:bottom" hx-trigger="load"></div></div><input id="chatinput" name="chatinput" autocomplete="off" autofocus hx-select-oob="#chatinput" hx-swap="none scroll:#chat_room:bottom"><div id="chatloading" class="htmx-indicator" hx-swap-oob="outerHTML"><p>Someone is typing...</p></div>`))
 				}
 			}
 
@@ -192,7 +192,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	client := &Client{hub: hub, id: id, conn: conn, send: make(chan []byte, 256)}
+	client := &Client{hub: hub, id: id, screenname: "Anonymous user", conn: conn, send: make(chan []byte, 256)}
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
